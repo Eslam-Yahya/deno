@@ -19,12 +19,16 @@ def make_env(merge_env={}, env=None):
     return env
 
 
-def run(args, quiet=False, cwd=None, env=None, merge_env={}):
+def run(args, quiet=False, cwd=None, env=None, merge_env={}, shell=None):
     args[0] = os.path.normpath(args[0])
     if not quiet:
         print " ".join(args)
     env = make_env(env=env, merge_env=merge_env)
-    shell = os.name == "nt"  # Run through shell to make .bat/.cmd files work.
+    if shell is None:
+        # If `shell` hasn't been set explicitly, use the default value:
+        #   * On Windows, use the shell; this makes .bat/.cmd files work.
+        #   * On other platforms, don't use the shell.
+        shell = os.name == "nt"
     rc = subprocess.call(args, cwd=cwd, env=env, shell=shell)
     if rc != 0:
         sys.exit(rc)
